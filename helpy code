@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<!-- "Tells the browser this is a modern HTML5 page" -->
+<html lang="en">
+<head>
+<!-- "Lets the page show letters like the checkmark correctly" -->
+<meta charset="utf-8">
+<!-- "Makes the page fit phone screens instead of looking tiny" -->
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<!-- "The name that shows on the browser tab" -->
+<title>Helpy</title>
+
+<style>
+/* ========== CSS: the part that controls how everything LOOKS ========== */
+
+/* "Color box: we save our colors here once, then reuse them with var(--name).
+    --bg is the page background, --ink is the text color, --card is the white boxes,
+    --line is the borders, --muted is the soft gray text,
+    --red / --yel / --grn are the three priority colors,
+    --btn and --btnt are the button background and button text." */
+:root{--bg:#eef3fb;--ink:#14213d;--card:#fff;--line:#c9d5ea;--muted:#5b6b88;--red:#d62839;--yel:#f2b705;--grn:#2a9d5c;--btn:#14213d;--btnt:#fff;
+/* "Keeps content away from the phone notch and the bottom bar" */
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+
+/* "If the person's phone or computer is in dark mode, swap in dark colors" */
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1626;--ink:#e8eefb;--card:#16223a;--line:#2b3b5e;--muted:#9fb0d0;--btn:#e8eefb;--btnt:#0e1626}}
+/* "Same dark colors, used if dark mode is forced on" */
+:root[data-theme="dark"]{--bg:#0e1626;--ink:#e8eefb;--card:#16223a;--line:#2b3b5e;--muted:#9fb0d0;--btn:#e8eefb;--btnt:#0e1626}
+
+/* "Makes sizes (width, padding) include the border so layouts do not break" */
+*{box-sizing:border-box}
+
+/* "Page background, text color, and the font. If the first font is missing, it tries the next ones" */
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Trebuchet MS","Segoe UI",system-ui,sans-serif;line-height:1.45}
+
+/* "The main content column: centered and never wider than 640px" */
+main{max-width:640px;margin:0 auto;padding:20px 16px 48px}
+
+/* "Size of the Helpy title" */
+h1{font-size:2.2rem;margin:8px 0 4px;letter-spacing:-.02em}
+
+/* "The top row: dino on the left, title on the right, lined up in the middle" */
+.top{display:flex;align-items:center;gap:14px;margin:4px 0 12px}
+/* "Dino size. height:auto keeps its shape. flex:none stops it from being squished" */
+.dino{width:92px;height:auto;flex:none}
+/* "Removes extra space around the title inside the top row" */
+.top h1{margin:0}
+/* "The 'by Rolando...' line: bold and soft gray" */
+p.by{margin:0 0 6px;font-weight:700;color:var(--muted)}
+/* "The short instruction line under the title" */
+p.sub{margin:0 0 20px;color:var(--muted)}
+
+/* "The white box that holds the Add Homework form. 'grid' stacks the fields with a gap between them" */
+form{background:var(--card);border:2px solid var(--line);border-radius:10px;padding:16px;display:grid;gap:12px}
+/* "Each field label: bold text with the input right under it" */
+label{display:grid;gap:4px;font-weight:700;font-size:.95rem}
+/* "Style for the name box and the due date dropdown" */
+input[type=text],select{font:inherit;padding:10px;border:2px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink)}
+/* "Yellow outline that shows when someone uses the keyboard (Tab key). Good for accessibility" */
+input:focus-visible,select:focus-visible,button:focus-visible{outline:3px solid var(--yel);outline-offset:2px}
+/* "The red error message. min-height keeps the space reserved so the page does not jump" */
+.err{color:var(--red);font-weight:700;min-height:1.2em;margin:0}
+/* "The big Save assignment button" */
+button.main{font:inherit;font-weight:700;padding:12px;border:0;border-radius:8px;background:var(--btn);color:var(--btnt);cursor:pointer}
+
+/* "Section headings: Your priority list and Completed" */
+h2{font-size:1.2rem;margin:28px 0 10px}
+/* "Removes the default 1. 2. 3. numbers because we draw our own big numbers" */
+ol{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+
+/* "Each assignment card. The thick left border is where the red/yellow/green color shows" */
+li.task{display:flex;gap:12px;align-items:center;background:var(--card);border:2px solid var(--line);border-left:12px solid var(--line);border-radius:10px;padding:12px}
+/* "t1 = first place (red), t2 = second (yellow), t3 = third (green)" */
+li.t1{border-left-color:var(--red)}li.t2{border-left-color:var(--yel)}li.t3{border-left-color:var(--grn)}
+/* "The big number on the left of each card (1, 2, 3...)" */
+.n{font-weight:700;font-size:1.3rem;width:1.5rem;text-align:center}
+/* "The text area of the card. flex:1 makes it take all the leftover space" */
+.info{flex:1}.info b{display:block}.info span{color:var(--muted);font-size:.85rem}
+/* "The little label like 'Start this now!' and its color for each place" */
+.tag{font-size:.8rem;font-weight:700;color:var(--red)}
+li.t2 .tag{color:#9a7400}li.t3 .tag{color:var(--grn)}
+:root[data-theme="dark"] li.t2 .tag{color:var(--yel)}
+/* "The round checkmark button. It turns green when you hover over it" */
+.done-btn{font:inherit;width:44px;height:44px;border-radius:50%;border:2px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer;font-size:1.2rem}
+.done-btn:hover{background:var(--grn);color:#fff;border-color:var(--grn)}
+/* "The dashed box that shows when a list is empty" */
+.empty{color:var(--muted);background:var(--card);border:2px dashed var(--line);border-radius:10px;padding:16px;margin:0}
+/* "Finished tasks: faded and crossed out" */
+li.completed{opacity:.6;text-decoration:line-through;border-left-color:var(--line)}
+/* "The click-to-open test section" */
+details{margin-top:24px}summary{cursor:pointer;font-weight:700}
+/* "The test results table" */
+.test{width:100%;border-collapse:collapse;font-size:.85rem;margin-top:10px}
+.test td,.test th{border:1px solid var(--line);padding:6px;text-align:left}
+/* "Lets the table scroll sideways on small phones instead of breaking the page" */
+.tests{overflow-x:auto}
+</style>
+</head>
+
+<body>
+<!-- ========== HTML: the part that builds the STRUCTURE of the page ========== -->
+<main>
+
+<!-- "Top row that holds the dino mascot and the title" -->
+<header class="top">
+<!-- "The dino is drawn with code (SVG), not a picture file. Each shape below is one body part" -->
+<svg class="dino" viewBox="0 0 130 120" role="img" aria-label="Helpy the dino, a smart nerdy mascot with glasses">
+<!-- "Tail" -->
+<path d="M92 98 Q120 100 124 78 Q112 88 94 84Z" fill="#4fb36c"/>
+<!-- "Body" -->
+<ellipse cx="62" cy="98" rx="30" ry="22" fill="#5fc47c"/>
+<!-- "Light belly" -->
+<ellipse cx="62" cy="102" rx="18" ry="15" fill="#d8f3df"/>
+<!-- "Left foot and right foot" -->
+<ellipse cx="46" cy="116" rx="9" ry="4" fill="#4fb36c"/>
+<ellipse cx="78" cy="116" rx="9" ry="4" fill="#4fb36c"/>
+<!-- "Three spikes on top of the head" -->
+<path d="M40 60 L46 38 L54 56Z M56 52 L62 28 L70 50Z M72 56 L80 36 L84 60Z" fill="#2a9d5c"/>
+<!-- "Head" -->
+<circle cx="62" cy="58" r="32" fill="#5fc47c"/>
+<!-- "Pink cheeks" -->
+<circle cx="44" cy="68" r="5" fill="#f4a3a8" opacity=".8"/>
+<circle cx="80" cy="68" r="5" fill="#f4a3a8" opacity=".8"/>
+<!-- "Nerd glasses: two round lenses" -->
+<circle cx="50" cy="54" r="12" fill="#fff" stroke="#14213d" stroke-width="3"/>
+<circle cx="74" cy="54" r="12" fill="#fff" stroke="#14213d" stroke-width="3"/>
+<!-- "Bridge between the lenses (tiny, it just connects them)" -->
+<path d="M62 54 H62" stroke="#14213d" stroke-width="3"/>
+<!-- "Pupils (the dark part of the eyes)" -->
+<circle cx="52" cy="55" r="4.5" fill="#14213d"/>
+<circle cx="76" cy="55" r="4.5" fill="#14213d"/>
+<!-- "Tiny white shine dots in the eyes" -->
+<circle cx="53.5" cy="53.5" r="1.5" fill="#fff"/>
+<circle cx="77.5" cy="53.5" r="1.5" fill="#fff"/>
+<!-- "Smile" -->
+<path d="M52 74 Q62 82 72 74" fill="none" stroke="#14213d" stroke-width="3" stroke-linecap="round"/>
+<!-- "Glasses arms that go back toward the ears" -->
+<path d="M36 52 L28 48 M96 52 L100 48" stroke="#14213d" stroke-width="3" stroke-linecap="round"/>
+<!-- "Little yellow book the dino is holding, plus its spine line" -->
+<rect x="30" y="86" width="26" height="20" rx="2" fill="#f2b705" stroke="#14213d" stroke-width="2.5"/>
+<path d="M43 86 V106" stroke="#14213d" stroke-width="2"/>
+</svg>
+<div>
+<!-- "The app name" -->
+<h1>Helpy</h1>
+<!-- "The credit line" -->
+<p class="by">by Rolando Rishmawy, with the help of Jose Perdomo</p>
+</div>
+</header>
+<!-- "Short instruction for the user" -->
+<p class="sub">Add your homework. The list tells you what to start first.</p>
+
+<!-- "INPUT SCREEN: the form where the user adds an assignment.
+    id lets our JavaScript find it. novalidate lets us show our own error message" -->
+<form id="f" novalidate>
+  <!-- "Input 1: assignment name (text)" -->
+  <label>Assignment name<input type="text" id="name" placeholder="Math worksheet" autocomplete="off"></label>
+  <!-- "Input 2: due date. The value is the number of days from now" -->
+  <label>Due date
+    <select id="due">
+      <option value="0">Today</option>
+      <option value="1" selected>Tomorrow</option>
+      <option value="2">In 2 days</option>
+      <option value="3">In 3 days</option>
+      <option value="7">Next week</option>
+    </select>
+  </label>
+  <!-- "Input 3: difficulty slider from 1 to 5. The number next to the label updates as you slide" -->
+  <label>Difficulty: <output id="dout">3</output> of 5 (5 is very hard or very important)
+    <input type="range" id="diff" min="1" max="5" value="3">
+  </label>
+  <!-- "Empty spot where the error message appears. role=alert makes screen readers announce it" -->
+  <p class="err" id="err" role="alert"></p>
+  <button class="main" type="submit">Save assignment</button>
+</form>
+
+<!-- "PRIORITY LIST SCREEN: JavaScript fills this list with sorted tasks" -->
+<h2>Your priority list</h2>
+<ol id="list"></ol>
+
+<!-- "COMPLETION SCREEN: finished tasks get moved here" -->
+<h2>Completed</h2>
+<ol id="doneList"></ol>
+
+<!-- "Click-to-open section that shows our test cases and whether they pass" -->
+<details>
+<summary>Test cases for this app (click to run them)</summary>
+<div class="tests"><table class="test" id="tests"></table></div>
+</details>
+</main>
+
+<script>
+/* ========== JavaScript: the part that makes the app THINK and WORK ========== */
+
+/* "VARIABLES: homeworkList stores every assignment. nextId gives each one its own number" */
+var homeworkList = [];
+var nextId = 1;
+
+/* "SELECTION (our flowchart decision): an assignment is High priority
+    if it is due tomorrow or sooner, OR if difficulty is 4 or 5.
+    Returns true or false." */
+function isHigh(a){ return a.dueDate <= 1 || a.difficulty >= 4; }
+
+/* "Gives each assignment a priorityScore (bigger number = do it sooner).
+    Base score: difficulty x 10, minus the days left (closer due date = higher score).
+    +100 bonus if due tomorrow or sooner, +50 bonus if difficulty is 4 or 5.
+    This makes High priority tasks always land above Low priority ones." */
+function priorityScore(a){
+  var score = a.difficulty * 10 - a.dueDate;
+  if (a.dueDate <= 1) score += 100;
+  else if (a.difficulty >= 4) score += 50;
+  return score;
+}
+
+/* "INVALID INPUT CHECK: if the name is empty (or only spaces), return an error message.
+    Otherwise return an empty string, which means 'no error'." */
+function validate(name){
+  if (!name || !name.trim()) return "Please enter an assignment name.";
+  return "";
+}
+
+/* "ITERATION: loop through every assignment, calculate its score,
+    then sort the list from highest score to lowest.
+    slice() makes a copy so we do not mess up the original list." */
+function sortedList(items){
+  items.forEach(function(a){ a.priorityScore = priorityScore(a); });
+  return items.slice().sort(function(a,b){ return b.priorityScore - a.priorityScore; });
+}
+
+/* "Turns the due date number into words, like 1 becomes 'Due tomorrow'" */
+function dueLabel(d){ return d===0?"Due today":d===1?"Due tomorrow":d===7?"Due next week":"Due in "+d+" days"; }
+
+/* "OUTPUT: redraws both lists on the screen. We call this every time something changes." */
+function render(){
+  /* "Step 1: get only the unfinished tasks and sort them" */
+  var open = sortedList(homeworkList.filter(function(a){return !a.isCompleted;}));
+  var list = document.getElementById("list");
+  list.innerHTML = "";   /* "clear the old list first" */
+
+  /* "If there are no tasks, show the friendly empty message" */
+  if (!open.length){
+    list.innerHTML = '<li class="empty">Nothing here yet. Add an assignment above to get your first task.</li>';
+  }
+
+  /* "Step 2: build one card for each task. i is its position (0 = first place)" */
+  open.forEach(function(a,i){
+    var cls = i===0?"t1":i===1?"t2":i===2?"t3":"";                              /* "which color: red, yellow, green" */
+    var tag = i===0?"Start this now!":i===1?"Next":i===2?"Then this":"";        /* "the little label on the card" */
+    var li = document.createElement("li");
+    li.className = "task "+cls;
+    li.innerHTML = '<div class="n">'+(i+1)+'</div><div class="info"><b></b><span></span>'+(tag?'<div class="tag">'+tag+'</div>':'')+'</div>';
+    /* "textContent is used for the name so nobody can sneak in code through the name box" */
+    li.querySelector("b").textContent = a.name;
+    li.querySelector("span").textContent = dueLabel(a.dueDate)+" | Difficulty "+a.difficulty+" | "+(isHigh(a)?"High":"Low")+" priority";
+
+    /* "The checkmark button. Clicking it marks the task done and redraws everything,
+        so the next task moves up to the red spot." */
+    var btn = document.createElement("button");
+    btn.className = "done-btn"; btn.type="button"; btn.textContent = "\u2713";
+    btn.setAttribute("aria-label","Mark "+a.name+" as done");
+    btn.onclick = function(){ a.isCompleted = true; render(); };
+
+    li.appendChild(btn);
+    list.appendChild(li);
+  });
+
+  /* "Step 3: fill the Completed list with finished tasks" */
+  var dl = document.getElementById("doneList");
+  dl.innerHTML = "";
+  var done = homeworkList.filter(function(a){return a.isCompleted;});
+  if (!done.length) dl.innerHTML = '<li class="empty">Finished tasks show up here.</li>';
+  done.forEach(function(a){
+    var li = document.createElement("li");
+    li.className = "task completed";
+    li.textContent = a.name;
+    dl.appendChild(li);
+  });
+}
+
+/* "When the slider moves, show its number next to the label" */
+document.getElementById("diff").oninput = function(e){ document.getElementById("dout").textContent = e.target.value; };
+
+/* "When the user presses Save assignment:" */
+document.getElementById("f").onsubmit = function(e){
+  e.preventDefault();                                   /* "stop the page from reloading" */
+  var nameEl = document.getElementById("name");
+  var msg = validate(nameEl.value);                     /* "check the name" */
+  document.getElementById("err").textContent = msg;     /* "show the error, or clear it if there is none" */
+  if (msg) { nameEl.focus(); return; }                  /* "if there is an error, stop here and put the cursor back in the box" */
+
+  /* "Otherwise, save the assignment into the list as an object with all its info" */
+  homeworkList.push({
+    id: nextId++,
+    name: nameEl.value.trim(),
+    dueDate: parseInt(document.getElementById("due").value,10),       /* "turn the text '1' into the number 1" */
+    difficulty: parseInt(document.getElementById("diff").value,10),
+    isCompleted: false
+  });
+  nameEl.value = "";   /* "empty the name box so it is ready for the next one" */
+  render();            /* "redraw the lists with the new task" */
+};
+
+/* "TESTS: runs our four test cases from the plan on the real code and shows Pass or Fail.
+    top() returns the name of the task ranked first. Each test adds a 'Filler' task to compete against." */
+function runTests(){
+  function top(items){ return sortedList(items)[0].name; }
+  var rows = [
+    /* "Normal: hard task due in 3 days should still win" */
+    ["Normal","Science Project, due in 3 days, difficulty 5","Top of list",
+      top([{name:"Science Project",dueDate:3,difficulty:5},{name:"Filler",dueDate:3,difficulty:2}])==="Science Project"],
+    /* "Normal: easy task due tomorrow should win" */
+    ["Normal","Reading, due tomorrow, difficulty 1","Top of list",
+      top([{name:"Reading",dueDate:1,difficulty:1},{name:"Filler",dueDate:3,difficulty:3}])==="Reading"],
+    /* "Boundary: task due today should win" */
+    ["Boundary","Math, due today, difficulty 1","Top of list",
+      top([{name:"Math",dueDate:0,difficulty:1},{name:"Filler",dueDate:3,difficulty:3}])==="Math"],
+    /* "Invalid: an empty name should give the error message" */
+    ["Invalid","Empty name","Error: Please enter an assignment name.",
+      validate("")==="Please enter an assignment name."]
+  ];
+  /* "Build the results table: a header row, then one row per test" */
+  var t = document.getElementById("tests");
+  t.innerHTML = "<tr><th>Case</th><th>Input</th><th>Expected</th><th>Result</th></tr>";
+  rows.forEach(function(r){
+    var tr = document.createElement("tr");
+    [r[0],r[1],r[2],r[3]?"Pass":"Fail"].forEach(function(c){
+      var td = document.createElement("td"); td.textContent = c; tr.appendChild(td);
+    });
+    t.appendChild(tr);
+  });
+}
+
+/* "START: run the tests once and draw the empty lists when the page loads" */
+runTests();
+render();
+</script>
+</body>
+</html>
